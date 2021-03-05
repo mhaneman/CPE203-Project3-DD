@@ -5,12 +5,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
 
-public abstract class EntityMoves extends EntityAnimates
+public abstract class EntityHostile extends EntityDynamic
 {
     protected Queue<Point> path = new ArrayDeque<>();
-    public EntityMoves(String id, Point position,
-                       List<PImage> images, int actionPeriod,
-                       int animationPeriod) {
+    public EntityHostile(String id, Point position, List<PImage> images, int actionPeriod, int animationPeriod)
+    {
         super(id, position, images, actionPeriod, animationPeriod);
     }
 
@@ -41,13 +40,10 @@ public abstract class EntityMoves extends EntityAnimates
                 p1.x == p2.x && p1.y-1 == p2.y;
     }
 
-    protected abstract void _moveTo(WorldModel world, Entity target, EventScheduler scheduler);
-
     protected boolean moveTo(WorldModel world, Entity target, EventScheduler scheduler)
     {
         if (this.getPosition().adjacent(target.getPosition()))
         {
-            _moveTo(world, target, scheduler);
             return true;
         }
         else
@@ -67,5 +63,4 @@ public abstract class EntityMoves extends EntityAnimates
             return false;
         }
     }
-
 }

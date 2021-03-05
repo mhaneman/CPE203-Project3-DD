@@ -18,6 +18,6 @@ public class Activity implements Action{
 
     private void executeActivityAction(EventScheduler scheduler)
     {
-        ((EntityAction)this.entity).executeActivity(this.world,  this.imageStore, scheduler);
+        ((EntityDynamic)this.entity).executeActivity(this.world,  this.imageStore, scheduler);
     }
 }
