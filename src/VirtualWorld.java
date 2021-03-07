@@ -12,13 +12,13 @@ components to make our world run (eventScheduler), the data in our world (WorldM
 current view (think virtual camera) into that world (WorldView)
  */
 
-public final class VirtualWorld
-   extends PApplet
+public final class VirtualWorld extends PApplet
 {
    private static final int TIMER_ACTION_PERIOD = 100;
 
    private static final int VIEW_WIDTH = 640;
    private static final int VIEW_HEIGHT = 480;
+
    private static final int TILE_WIDTH = 32;
    private static final int TILE_HEIGHT = 32;
    private static final int WORLD_WIDTH_SCALE = 2;
@@ -56,9 +56,6 @@ public final class VirtualWorld
       size(VIEW_WIDTH, VIEW_HEIGHT);
    }
 
-   /*
-      Processing entry point for "sketch" setup.
-   */
    public void setup()
    {
       this.imageStore = new ImageStore(
@@ -91,24 +88,28 @@ public final class VirtualWorld
 
    public void keyPressed()
    {
+      Character character = world.getCharacter();
       if (key == CODED)
       {
          int dx = 0;
          int dy = 0;
-
          switch (keyCode)
          {
             case UP:
-               dy = -1;
+               character.moveUp(world);
+//               dy = -1;
                break;
             case DOWN:
-               dy = 1;
+               character.moveDown(world);
+//               dy = 1;
                break;
             case LEFT:
-               dx = -1;
+               character.moveLeft(world);
+//               dx = -1;
                break;
             case RIGHT:
-               dx = 1;
+               character.moveRight(world);
+//               dx = 1;
                break;
          }
          view.shiftView(dx, dy);

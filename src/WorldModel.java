@@ -10,18 +10,32 @@ in terms of entities and background elements
 final class WorldModel
 {
    private static final String DRAGON_KEY = "dragon";
-   private static final int DRAGON_NUM_PROPERTIES = 6;
-   private static final int DRAGON_ID = 1;
-   private static final int DRAGON_COL = 2;
-   private static final int DRAGON_ROW = 3;
-   private static final int DRAGON_ACTION_PERIOD = 4;
-   private static final int DRAGON_ANIMATION_PERIOD = 5;
+   private static final int DRAGON_NUM_PROPERTIES = 3;
+   private static final int DRAGON_COL = 1;
+   private static final int DRAGON_ROW = 2;
+
+   private static final String BLOB_KEY = "blob";
+   private static final int BLOB_NUM_PROPERTIES = 3;
+   private static final int BLOB_COL = 1;
+   private static final int BLOB_ROW = 2;
+
+   private static final String MOLE_KEY = "mole";
+   private static final int MOLE_NUM_PROPERTIES = 3;
+   private static final int MOLE_COL = 1;
+   private static final int MOLE_ROW = 2;
+
+   private static final String CHARACTER_KEY = "character";
+   private static final int CHARACTER_NUM_PROPERTIES = 6;
+   private static final int CHARACTER_ID = 1;
+   private static final int CHARACTER_COL = 2;
+   private static final int CHARACTER_ROW = 3;
+   private static final int CHARACTER_ANIMATION_PERIOD = 4;
+   private static final int CHARACTER_ACTION_PERIOD = 5;
 
    private static final String OBSTACLE_KEY = "obstacle";
-   private static final int OBSTACLE_NUM_PROPERTIES = 4;
-   private static final int OBSTACLE_ID = 1;
-   private static final int OBSTACLE_COL = 2;
-   private static final int OBSTACLE_ROW = 3;
+   private static final int OBSTACLE_NUM_PROPERTIES = 3;
+   private static final int OBSTACLE_COL = 1;
+   private static final int OBSTACLE_ROW = 2;
 
    private static final String BGND_KEY = "background";
    private static final int BGND_NUM_PROPERTIES = 4;
@@ -64,8 +78,7 @@ final class WorldModel
       }
    }
 
-   public boolean processLine(String line,
-                              ImageStore imageStore)
+   public boolean processLine(String line, ImageStore imageStore)
    {
       String[] properties = line.split("\\s");
       if (properties.length > 0)
@@ -78,6 +91,12 @@ final class WorldModel
                return parseObstacle(properties, imageStore);
             case DRAGON_KEY:
                return parseDragon(properties, imageStore);
+            case BLOB_KEY:
+               return parseBlob(properties, imageStore);
+            case MOLE_KEY:
+               return parseMole(properties, imageStore);
+            case CHARACTER_KEY:
+               return parseCharacter(properties, imageStore);
          }
       }
       return false;
@@ -90,8 +109,8 @@ final class WorldModel
          Point pt = new Point(
             Integer.parseInt(properties[OBSTACLE_COL]),
             Integer.parseInt(properties[OBSTACLE_ROW]));
-         Entity entity = new Obstacle(properties[OBSTACLE_ID],
-            pt, imageStore.getImageList(OBSTACLE_KEY));
+
+         Entity entity = FactoryObstacle.createObstacle(pt, imageStore.getImageList(OBSTACLE_KEY));
          tryAddEntity(entity);
       }
       return properties.length == OBSTACLE_NUM_PROPERTIES;
@@ -104,12 +123,51 @@ final class WorldModel
          Point pt = new Point(Integer.parseInt(properties[DRAGON_COL]),
                  Integer.parseInt(properties[DRAGON_ROW]));
 
-         Entity entity = new Dragon(properties[DRAGON_ID], pt, imageStore.getImageList(DRAGON_KEY),
-                 Integer.parseInt(properties[DRAGON_ACTION_PERIOD]),
-                 Integer.parseInt(properties[DRAGON_ANIMATION_PERIOD]));
+         Entity entity = FactoryHostile.createDragon(pt, imageStore);
          tryAddEntity(entity);
       }
       return properties.length == DRAGON_NUM_PROPERTIES;
+   }
+
+   private boolean parseBlob(String[] properties, ImageStore imageStore)
+   {
+      if (properties.length == BLOB_NUM_PROPERTIES)
+      {
+         Point pt = new Point(Integer.parseInt(properties[BLOB_COL]),
+                 Integer.parseInt(properties[BLOB_ROW]));
+
+         Entity entity = FactoryHostile.createBlob(pt, imageStore);
+         tryAddEntity(entity);
+      }
+      return properties.length == BLOB_NUM_PROPERTIES;
+   }
+
+   private boolean parseMole(String[] properties, ImageStore imageStore)
+   {
+      if (properties.length == MOLE_NUM_PROPERTIES)
+      {
+         Point pt = new Point(Integer.parseInt(properties[MOLE_COL]),
+                 Integer.parseInt(properties[MOLE_ROW]));
+
+         Entity entity = FactoryHostile.createMole(pt, imageStore);
+         tryAddEntity(entity);
+      }
+      return properties.length == MOLE_NUM_PROPERTIES;
+   }
+
+   private boolean parseCharacter(String[] properties, ImageStore imageStore)
+   {
+      if (properties.length == CHARACTER_NUM_PROPERTIES)
+      {
+         Point pt = new Point(Integer.parseInt(properties[CHARACTER_COL]),
+                 Integer.parseInt(properties[CHARACTER_ROW]));
+
+         Entity entity = new Character(properties[CHARACTER_ID], pt, imageStore.getImageList(CHARACTER_KEY),
+                 Integer.parseInt(properties[CHARACTER_ACTION_PERIOD]),
+                 Integer.parseInt(properties[CHARACTER_ANIMATION_PERIOD]));
+         tryAddEntity(entity);
+      }
+      return properties.length == CHARACTER_NUM_PROPERTIES;
    }
 
    private boolean parseBackground(String[] properties, ImageStore imageStore)
@@ -119,8 +177,7 @@ final class WorldModel
          Point pt = new Point(Integer.parseInt(properties[BGND_COL]),
             Integer.parseInt(properties[BGND_ROW]));
          String id = properties[BGND_ID];
-         setBackground(pt,
-            new Background(id, imageStore.getImageList(id)));
+         setBackground(pt, new Background(id, imageStore.getImageList(id)));
       }
       return properties.length == BGND_NUM_PROPERTIES;
    }
@@ -137,6 +194,16 @@ final class WorldModel
          getOccupancyCell(pos) != null;
    }
 
+   public Character getCharacter()
+   {
+      for (Entity e : this.entities)
+      {
+         if(e instanceof Character)
+            return (Character) e;
+      }
+      System.out.println("failed you dumb fuck");
+      return null;
+   }
    public Optional<Entity> findNearest(Point pos, Class kind)
    {
       List<Entity> ofType = new LinkedList<>();
@@ -163,7 +230,7 @@ final class WorldModel
       }
    }
 
-   private void setBackground(Point pos,
+   public void setBackground(Point pos,
                              Background background)
    {
       if (this.withinBounds(pos))
@@ -189,8 +256,7 @@ final class WorldModel
       return this.occupancy[pos.y][pos.x];
    }
 
-   private void setOccupancyCell(Point pos,
-                                Entity entity)
+   private void setOccupancyCell(Point pos, Entity entity)
    {
       this.occupancy[pos.y][pos.x] = entity;
    }

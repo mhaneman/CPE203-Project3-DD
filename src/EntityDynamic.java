@@ -9,9 +9,11 @@ public abstract class EntityDynamic extends Entity
     public EntityDynamic(String id, Point position, List<PImage> images, int actionPeriod, int animationPeriod)
     {
         super(id, position, images);
-        this.actionPeriod = actionPeriod;
         this.animationPeriod = animationPeriod;
+        this.actionPeriod = actionPeriod;
     }
+    protected abstract void executeActivity(WorldModel world, ImageStore imageStore, EventScheduler eventScheduler);
+    protected abstract void scheduleActions(WorldModel world, ImageStore imageStore, EventScheduler eventScheduler);
 
     protected Action createAnimationAction(int repeatCount)
     {
@@ -22,15 +24,9 @@ public abstract class EntityDynamic extends Entity
         return animationPeriod;
     }
 
-    protected abstract void executeActivity(WorldModel world, ImageStore imageStore, EventScheduler eventScheduler);
-
-    protected abstract void scheduleActions(WorldModel world, ImageStore imageStore, EventScheduler eventScheduler);
-
-    protected Action createActivityAction(WorldModel world, ImageStore imageStore)
-    {
+    protected Action createActivityAction(WorldModel world, ImageStore imageStore) {
         return new Activity(this, world, imageStore);
     }
-
     protected int getActionPeriod()
     {
         return actionPeriod;
