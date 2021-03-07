@@ -2,7 +2,7 @@ import processing.core.PImage;
 
 import java.util.List;
 
-public class FactoryObstacle
+public class FactoryObstacle extends Factory
 {
     public static Entity createObstacle(Point position, List<PImage> images)
     {

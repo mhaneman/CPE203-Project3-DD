@@ -2,7 +2,7 @@ import processing.core.PImage;
 
 import java.util.List;
 
-public class FactoryHostile
+public class FactoryHostile extends Factory
 {
     private static int dragonAnimationPeriod = 100;
     private static int dragonActionPeriod = 813;
