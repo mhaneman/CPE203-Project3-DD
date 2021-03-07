@@ -37,12 +37,6 @@ final class WorldModel
    private static final int OBSTACLE_COL = 1;
    private static final int OBSTACLE_ROW = 2;
 
-   private static final String BGND_KEY = "background";
-   private static final int BGND_NUM_PROPERTIES = 4;
-   private static final int BGND_ID = 1;
-   private static final int BGND_COL = 2;
-   private static final int BGND_ROW = 3;
-
    private static final int PROPERTY_KEY = 0;
 
 
@@ -85,8 +79,10 @@ final class WorldModel
       {
          switch (properties[PROPERTY_KEY])
          {
-            case BGND_KEY:
-               return parseBackground(properties, imageStore);
+            case "background":
+               return parseBackground(imageStore);
+            case "dirt":
+               return parseDirt(imageStore);
             case OBSTACLE_KEY:
                return parseObstacle(properties, imageStore);
             case DRAGON_KEY:
@@ -170,16 +166,55 @@ final class WorldModel
       return properties.length == CHARACTER_NUM_PROPERTIES;
    }
 
-   private boolean parseBackground(String[] properties, ImageStore imageStore)
+   private boolean parseBackground(ImageStore imageStore)
    {
-      if (properties.length == BGND_NUM_PROPERTIES)
+      String id1 = "sky";
+      String id2 = "black";
+     for (int i = 0; i < numCols; i ++)
+     {
+        for (int j = 0; j < numRows; j ++)
+        {
+           if (j < 5)
+              setBackground(new Point (i, j), new Background(id1, imageStore.getImageList(id1)));
+           else
+              setBackground(new Point (i, j), new Background(id2, imageStore.getImageList(id2)));
+        }
+     }
+     return true;
+   }
+
+   private boolean parseDirt(ImageStore imageStore)
+   {
+      for (int i = 0; i < numCols; i ++)
       {
-         Point pt = new Point(Integer.parseInt(properties[BGND_COL]),
-            Integer.parseInt(properties[BGND_ROW]));
-         String id = properties[BGND_ID];
-         setBackground(pt, new Background(id, imageStore.getImageList(id)));
+         for (int j = 5; j < numRows; j ++)
+         {
+            Point newPos = new Point(i, j);
+            if (!isOccupied(newPos))
+            {
+               Entity entity = FactoryObstacle.createObstacle(newPos, imageStore.getImageList("dirt"));
+               tryAddEntity(entity);
+            }
+
+         }
+
       }
-      return properties.length == BGND_NUM_PROPERTIES;
+      return true;
+   }
+
+   public Character getCharacter()
+   {
+      for (Entity e : this.entities)
+      {
+         if(e instanceof Character)
+            return (Character) e;
+      }
+      return null;
+   }
+
+   public void setEntityTexture(Entity entity, ImageStore imageStore, String imageKey)
+   {
+      entity.setImages(imageStore.getImageList(imageKey));
    }
 
    public boolean withinBounds(Point pos)
@@ -190,20 +225,15 @@ final class WorldModel
 
    public boolean isOccupied(Point pos)
    {
-      return this.withinBounds(pos) &&
-         getOccupancyCell(pos) != null;
+      return this.withinBounds(pos) && getOccupancyCell(pos) != null;
    }
 
-   public Character getCharacter()
+   public boolean isOccupiedNotDirt(Point pos)
    {
-      for (Entity e : this.entities)
-      {
-         if(e instanceof Character)
-            return (Character) e;
-      }
-      System.out.println("failed you dumb fuck");
-      return null;
+      return this.withinBounds(pos)
+              && !(getOccupancyCell(pos) == null || getOccupancyCell(pos).getClass().equals(Obstacle.class));
    }
+
    public Optional<Entity> findNearest(Point pos, Class kind)
    {
       List<Entity> ofType = new LinkedList<>();
@@ -284,15 +314,14 @@ final class WorldModel
       addEntity(entity);
    }
 
-   private void removeEntityAt(Point pos)
+   public void removeEntityAt(Point pos)
    {
       if (this.withinBounds(pos)
          && this.getOccupancyCell(pos) != null)
       {
          Entity entity = this.getOccupancyCell(pos);
 
-         /* this moves the entity just outside of the grid for
-            debugging purposes */
+         /* this moves the entity just outside of the grid for debugging purposes */
          entity.setPosition(new Point(-1, -1));
          this.entities.remove(entity);
          this.setOccupancyCell(pos, null);

@@ -23,7 +23,6 @@ public abstract class EntityDynamic extends Entity
     {
         return animationPeriod;
     }
-
     protected Action createActivityAction(WorldModel world, ImageStore imageStore) {
         return new Activity(this, world, imageStore);
     }

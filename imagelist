@@ -5,4 +5,10 @@ blob images/blob2.bmp
 character images/character1.bmp
 character images/character2.bmp
 obstacle images/rock.bmp
+dirt images/dirt_light.bmp
+dirt images/dirt_orange.bmp
+dirt images/dirt_purple.bmp
+dirt images/dirt_gray.bmp
+sky images/sky.bmp
+black images/black.bmp
 background_default images/none.bmp

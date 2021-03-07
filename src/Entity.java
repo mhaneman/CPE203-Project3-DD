@@ -29,9 +29,6 @@ public abstract class Entity
     {
         return this.images.get(this.imageIndex);
     }
-    protected String getId() {
-        return id;
-    }
     protected Point getPosition() {
         return position;
     }
@@ -40,5 +37,8 @@ public abstract class Entity
     }
     public List<PImage> getImages() {
         return images;
+    }
+    public void setImages(List<PImage> images) {
+        this.images = images;
     }
 }

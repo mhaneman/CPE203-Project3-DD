@@ -1,6 +1,7 @@
 import processing.core.PApplet;
 import processing.core.PImage;
 
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
@@ -16,18 +17,21 @@ public final class VirtualWorld extends PApplet
 {
    private static final int TIMER_ACTION_PERIOD = 100;
 
-   private static final int VIEW_WIDTH = 640;
-   private static final int VIEW_HEIGHT = 480;
+   private static final int VIEW_WIDTH = 672;
+   private static final int VIEW_HEIGHT = 880;
 
    private static final int TILE_WIDTH = 32;
    private static final int TILE_HEIGHT = 32;
-   private static final int WORLD_WIDTH_SCALE = 2;
-   private static final int WORLD_HEIGHT_SCALE = 2;
 
    private static final int VIEW_COLS = VIEW_WIDTH / TILE_WIDTH;
    private static final int VIEW_ROWS = VIEW_HEIGHT / TILE_HEIGHT;
-   private static final int WORLD_COLS = VIEW_COLS * WORLD_WIDTH_SCALE;
-   private static final int WORLD_ROWS = VIEW_ROWS * WORLD_HEIGHT_SCALE;
+   private static final int WORLD_COLS = VIEW_WIDTH / TILE_WIDTH;
+   private static final int WORLD_ROWS = VIEW_HEIGHT / TILE_HEIGHT;
+
+//   private static final int WORLD_WIDTH_SCALE = 2;
+//   private static final int WORLD_HEIGHT_SCALE = 2;
+//   private static final int WORLD_COLS = VIEW_COLS * WORLD_WIDTH_SCALE;
+//   private static final int WORLD_ROWS = VIEW_ROWS * WORLD_HEIGHT_SCALE;
 
    private static final String IMAGE_LIST_FILE_NAME = "imagelist";
    private static final String DEFAULT_IMAGE_NAME = "background_default";
@@ -50,6 +54,7 @@ public final class VirtualWorld extends PApplet
    private EventScheduler scheduler;
 
    private long next_time;
+
 
    public void settings()
    {
@@ -89,30 +94,28 @@ public final class VirtualWorld extends PApplet
    public void keyPressed()
    {
       Character character = world.getCharacter();
-      if (key == CODED)
+      if (character != null)
       {
-         int dx = 0;
-         int dy = 0;
          switch (keyCode)
          {
             case UP:
-               character.moveUp(world);
-//               dy = -1;
+               character.moveUp();
                break;
+
             case DOWN:
-               character.moveDown(world);
-//               dy = 1;
+               character.moveDown();
                break;
+
             case LEFT:
                character.moveLeft(world);
-//               dx = -1;
                break;
+
             case RIGHT:
                character.moveRight(world);
-//               dx = 1;
                break;
+            case KeyEvent.VK_SPACE:
+               character.shoot(world);
          }
-         view.shiftView(dx, dy);
       }
    }
 

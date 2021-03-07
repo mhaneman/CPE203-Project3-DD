@@ -13,14 +13,10 @@ public abstract class EntityHostile extends EntityDynamic
         this.strategy = strategy;
     }
 
-
     protected void scheduleActions(WorldModel world, ImageStore imageStore, EventScheduler eventScheduler)
     {
-        eventScheduler.scheduleEvent(this,
-                createActivityAction(world, imageStore),
-                getActionPeriod());
-        eventScheduler.scheduleEvent(this, createAnimationAction(0),
-                getAnimationPeriod());
+        eventScheduler.scheduleEvent(this, createActivityAction(world, imageStore), getActionPeriod());
+        eventScheduler.scheduleEvent(this, createAnimationAction(0), getAnimationPeriod());
     }
 
     protected void executeActivity(WorldModel world, ImageStore imageStore, EventScheduler eventScheduler)
@@ -28,11 +24,13 @@ public abstract class EntityHostile extends EntityDynamic
         Optional<Entity> hostileTarget = world.findNearest(getPosition(), Character.class);
         long nextPeriod = getActionPeriod();
 
-        if (hostileTarget.isPresent())
-        {
-            Point tgtPos = hostileTarget.get().getPosition();
-            world.moveEntity(this, nextPosition(tgtPos, world));
-        }
+        if (neighbors(this.getPosition(), hostileTarget.get().getPosition()))
+            System.out.println("end the game");
+
+
+        Point tgtPos = hostileTarget.get().getPosition();
+        world.moveEntity(this, nextPosition(tgtPos, world));
+
         eventScheduler.scheduleEvent(this,
                 createActivityAction(world, imageStore),
                 nextPeriod);
@@ -40,7 +38,9 @@ public abstract class EntityHostile extends EntityDynamic
 
     protected Point nextPosition(Point destPos, WorldModel world)
     {
-        if (path.isEmpty())
+        if (!world.withinBounds(this.getPosition()))
+            return this.getPosition();
+        if (path.isEmpty() || world.isOccupied(path.peek()))
             generatePath(this.getPosition(), destPos, world);
         if (path.isEmpty())
             return this.getPosition();
@@ -52,12 +52,9 @@ public abstract class EntityHostile extends EntityDynamic
         points = strategy.computePath(pos, goal, p -> !world.isOccupied(p),
                 EntityHostile::neighbors, PathingStrategy.CARDINAL_NEIGHBORS);
 
-
         if (points.size() == 0)
-        {
-            System.out.println("No path found");
             return false;
-        }
+
         path.addAll(points);
         return true;
     }
