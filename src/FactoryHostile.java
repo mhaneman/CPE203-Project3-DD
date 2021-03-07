@@ -1,9 +1,4 @@
-import processing.core.PImage;
-
-import java.util.List;
-
-public class FactoryHostile extends Factory
-{
+public class FactoryHostile {
     private static int dragonAnimationPeriod = 100;
     private static int dragonActionPeriod = 813;
 
@@ -16,13 +11,13 @@ public class FactoryHostile extends Factory
     public static EntityHostile createDragon(Point position, ImageStore imageStore)
     {
         String id = "dragon_" + position.x + "_" + position.y;
-        return new Dragon(id, position, imageStore.getImageList("mole"), dragonActionPeriod, dragonAnimationPeriod);
+        return new Dragon(id, position, imageStore.getImageList("dragon"), dragonActionPeriod, dragonAnimationPeriod);
     }
 
     public static EntityHostile createBlob(Point position, ImageStore imageStore)
     {
         String id = "blob_" + position.x + "_" + position.y;
-        return new Blob(id, position, imageStore.getImageList("mole"), blobActionPeriod, blobAnimationPeriod);
+        return new Blob(id, position, imageStore.getImageList("blob"), blobActionPeriod, blobAnimationPeriod);
     }
 
     public static EntityHostile createMole(Point position, ImageStore imageStore)
