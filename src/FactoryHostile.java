@@ -1,4 +1,4 @@
-public class FactoryHostile extends Factory
+public class FactoryHostile
 {
     private static int dragonAnimationPeriod = 100;
     private static int dragonActionPeriod = 813;
@@ -25,9 +25,5 @@ public class FactoryHostile extends Factory
     {
         String id = "mole_" + position.x + "_" + position.y;
         return new Mole(id, position, imageStore.getImageList("mole"), moleActionPeriod, moleAnimationPeriod);
-    }
-
-    private static int getRandomNumber(int min, int max) {
-        return (int) ((Math.random() * (max - min)) + min);
     }
 }

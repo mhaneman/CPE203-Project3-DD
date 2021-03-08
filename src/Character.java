@@ -1,12 +1,14 @@
 import processing.core.PImage;
 
+import java.awt.*;
 import java.util.List;
 import java.util.Optional;
 
 public class Character extends EntityDynamic
 {
     private int direction;
-    private boolean leftOrRight; // left is false
+    private boolean leftOrRight; // right is false
+    private int waitTime = 0;
     private int waitTick = -1; // -1 means no tick
 
     public Character(String id, Point position, List<PImage> images, int actionPeriod, int animationPeriod)
@@ -24,30 +26,34 @@ public class Character extends EntityDynamic
                 case 1: // move up
                     Point newPos = new Point(this.getPosition().x, this.getPosition().y - 1);
                     if (!world.isOccupiedNotDirt(newPos))
+                        world.removeEntityAt(newPos);
                         world.moveEntity(this, newPos);
                     break;
 
                 case 2: // move down
                     newPos = new Point(this.getPosition().x, this.getPosition().y + 1);
                     if (!world.isOccupiedNotDirt(newPos))
+                        world.removeEntityAt(newPos);
                         world.moveEntity(this, newPos);
                     break;
 
                 case 3: // move left
-                    leftOrRight = false;
+                    leftOrRight = true;
                     newPos = new Point(this.getPosition().x - 1, this.getPosition().y);
                     if (!world.isOccupiedNotDirt(newPos))
+                        world.removeEntityAt(newPos);
                         world.moveEntity(this, newPos);
                     break;
 
                 case 4: // move right
-                    leftOrRight = true;
+                    leftOrRight = false;
                     newPos = new Point(this.getPosition().x + 1, this.getPosition().y);
                     if (!world.isOccupiedNotDirt(newPos))
+                        world.removeEntityAt(newPos);
                         world.moveEntity(this, newPos);
                     break;
             }
-        } else if (waitTick < 2)
+        } else if (waitTick < waitTime)
             waitTick++;
         else
             waitTick = -1;
@@ -63,18 +69,22 @@ public class Character extends EntityDynamic
         eventScheduler.scheduleEvent(this, createAnimationAction(0), getAnimationPeriod());
     }
 
-    public void shoot(WorldModel world)
+    public void shoot(WorldModel world, ImageStore imageStore)
     {
         waitTick = 0;
-        if (leftOrRight)
+        if (!leftOrRight)
         {
             world.removeEntityAt(new Point(getPosition().x + 1, getPosition().y));
+            if (world.getOccupancyCell(new Point(getPosition().x + 2, getPosition().y)) instanceof EntityHostile)
+                world.removeEntityAt(new Point(getPosition().x + 2, getPosition().y));
+
         } else
         {
             world.removeEntityAt(new Point(getPosition().x - 1, getPosition().y));
+            if (world.getOccupancyCell(new Point(getPosition().x - 2, getPosition().y)) instanceof EntityHostile)
+                world.removeEntityAt(new Point(getPosition().x - 2, getPosition().y));
         }
     }
-
 
     public void moveUp()
     {

@@ -25,12 +25,9 @@ final class WorldModel
    private static final int MOLE_ROW = 2;
 
    private static final String CHARACTER_KEY = "character";
-   private static final int CHARACTER_NUM_PROPERTIES = 6;
-   private static final int CHARACTER_ID = 1;
-   private static final int CHARACTER_COL = 2;
-   private static final int CHARACTER_ROW = 3;
-   private static final int CHARACTER_ANIMATION_PERIOD = 4;
-   private static final int CHARACTER_ACTION_PERIOD = 5;
+   private static final int CHARACTER_NUM_PROPERTIES = 3;
+   private static final int CHARACTER_COL = 1;
+   private static final int CHARACTER_ROW = 2;
 
    private static final String OBSTACLE_KEY = "obstacle";
    private static final int OBSTACLE_NUM_PROPERTIES = 3;
@@ -158,9 +155,7 @@ final class WorldModel
          Point pt = new Point(Integer.parseInt(properties[CHARACTER_COL]),
                  Integer.parseInt(properties[CHARACTER_ROW]));
 
-         Entity entity = new Character(properties[CHARACTER_ID], pt, imageStore.getImageList(CHARACTER_KEY),
-                 Integer.parseInt(properties[CHARACTER_ACTION_PERIOD]),
-                 Integer.parseInt(properties[CHARACTER_ANIMATION_PERIOD]));
+         Entity entity = FactoryDynamic.createCharacter(pt, imageStore);
          tryAddEntity(entity);
       }
       return properties.length == CHARACTER_NUM_PROPERTIES;
@@ -281,7 +276,7 @@ final class WorldModel
       }
    }
 
-   private Entity getOccupancyCell(Point pos)
+   public Entity getOccupancyCell(Point pos)
    {
       return this.occupancy[pos.y][pos.x];
    }

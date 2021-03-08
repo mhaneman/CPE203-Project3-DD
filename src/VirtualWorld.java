@@ -114,7 +114,7 @@ public final class VirtualWorld extends PApplet
                character.moveRight(world);
                break;
             case KeyEvent.VK_SPACE:
-               character.shoot(world);
+               character.shoot(world, imageStore);
          }
       }
    }
