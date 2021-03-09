@@ -33,7 +33,6 @@ final class WorldModel
    private static final int OBSTACLE_NUM_PROPERTIES = 3;
    private static final int OBSTACLE_COL = 1;
    private static final int OBSTACLE_ROW = 2;
-
    private static final int PROPERTY_KEY = 0;
 
 

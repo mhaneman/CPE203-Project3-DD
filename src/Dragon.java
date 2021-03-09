@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class Dragon extends EntityHostile {
-
+public class Dragon extends EntityHostile
+{
     public Dragon(String id, Point position,
                   List<PImage> images, int actionPeriod, int animationPeriod)
     {

@@ -1,6 +1,7 @@
 import processing.core.PImage;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -8,8 +9,11 @@ public class Character extends EntityDynamic
 {
     private int direction;
     private boolean leftOrRight; // right is false
-    private int waitTime = 0;
+    private int waitTime = 1;
     private int waitTick = -1; // -1 means no tick
+
+    private int livesTime = 2;
+    private int livesTick = livesTime;
 
     public Character(String id, Point position, List<PImage> images, int actionPeriod, int animationPeriod)
     {
@@ -19,44 +23,78 @@ public class Character extends EntityDynamic
     @Override
     protected void executeActivity(WorldModel world, ImageStore imageStore, EventScheduler eventScheduler)
     {
-        if (waitTick < 0)
-        {
-            switch (direction)
-            {
+        if (livesTick < livesTime)
+            livesTick++;
+        if (livesTick <= 0)
+            world.removeEntity(this);
+
+        if (waitTick < 0) {
+            switch (direction) {
                 case 1: // move up
                     Point newPos = new Point(this.getPosition().x, this.getPosition().y - 1);
                     if (!world.isOccupiedNotDirt(newPos))
+                    {
                         world.removeEntityAt(newPos);
                         world.moveEntity(this, newPos);
+                    }
                     break;
 
                 case 2: // move down
                     newPos = new Point(this.getPosition().x, this.getPosition().y + 1);
                     if (!world.isOccupiedNotDirt(newPos))
+                    {
                         world.removeEntityAt(newPos);
                         world.moveEntity(this, newPos);
+                    }
                     break;
 
                 case 3: // move left
                     leftOrRight = true;
                     newPos = new Point(this.getPosition().x - 1, this.getPosition().y);
                     if (!world.isOccupiedNotDirt(newPos))
+                    {
                         world.removeEntityAt(newPos);
                         world.moveEntity(this, newPos);
+                    }
                     break;
 
                 case 4: // move right
                     leftOrRight = false;
                     newPos = new Point(this.getPosition().x + 1, this.getPosition().y);
                     if (!world.isOccupiedNotDirt(newPos))
+                    {
                         world.removeEntityAt(newPos);
                         world.moveEntity(this, newPos);
+                    }
                     break;
             }
-        } else if (waitTick < waitTime)
-            waitTick++;
-        else
-            waitTick = -1;
+        } else
+        {
+            Point shootPoint = leftOrRight ?
+                    new Point(this.getPosition().x - 1, this.getPosition().y) :
+                    new Point(this.getPosition().x + 1, this.getPosition().y);
+            if (this.waitTick == this.waitTime)
+                if (shootPoint.y < 5)
+                    world.setBackground(shootPoint,
+                            new Background("sky", imageStore.getImageList("sky")));
+                else
+                    world.setBackground(shootPoint,
+                            new Background("black", imageStore.getImageList("black")));
+
+            if (this.waitTick == 0)
+                if (leftOrRight)
+                    world.setBackground(shootPoint,
+                            new Background("arrowLeft", imageStore.getImageList("arrowLeft")));
+                else
+                    world.setBackground(shootPoint,
+                            new Background("arrowRight", imageStore.getImageList("arrowRight")));
+
+            if (this.waitTick < this.waitTime)
+                waitTick++;
+            else
+                waitTick = -1;
+        }
+
         direction = 0;
         long nextPeriod = getActionPeriod();
         eventScheduler.scheduleEvent(this, createActivityAction(world, imageStore), nextPeriod);
@@ -74,16 +112,31 @@ public class Character extends EntityDynamic
         waitTick = 0;
         if (!leftOrRight)
         {
-            world.removeEntityAt(new Point(getPosition().x + 1, getPosition().y));
-            if (world.getOccupancyCell(new Point(getPosition().x + 2, getPosition().y)) instanceof EntityHostile)
-                world.removeEntityAt(new Point(getPosition().x + 2, getPosition().y));
-
+            Point shootPoint = new Point(getPosition().x + 1, getPosition().y);
+            if (world.withinBounds(shootPoint) && world.getOccupancyCell(shootPoint) instanceof EntityHostile)
+            {
+                world.removeEntityAt(shootPoint);
+            }
         } else
         {
-            world.removeEntityAt(new Point(getPosition().x - 1, getPosition().y));
-            if (world.getOccupancyCell(new Point(getPosition().x - 2, getPosition().y)) instanceof EntityHostile)
-                world.removeEntityAt(new Point(getPosition().x - 2, getPosition().y));
+            Point shootPoint = new Point(getPosition().x - 1, getPosition().y);
+            if (world.withinBounds(shootPoint) && world.getOccupancyCell(shootPoint) instanceof EntityHostile)
+            {
+                world.removeEntityAt(shootPoint);
+            }
+
         }
+    }
+
+    public void removeLifeTick()
+    {
+        this.livesTick -= 2;
+    }
+
+    public void restoreLifeTick()
+    {
+        if (this.livesTick < livesTime)
+            livesTick = livesTime;
     }
 
     public void moveUp()
@@ -96,14 +149,16 @@ public class Character extends EntityDynamic
         direction = 2;
     }
 
-    public void moveLeft(WorldModel world)
+    public void moveLeft(ImageStore imageStore)
     {
         direction = 3;
+        this.setImages(imageStore.getImageList("characterLeft"));
     }
 
-    public void moveRight(WorldModel world)
+    public void moveRight(ImageStore imageStore)
     {
         direction = 4;
+        this.setImages(imageStore.getImageList("characterRight"));
     }
 
 }

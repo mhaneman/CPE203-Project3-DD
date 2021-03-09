@@ -56,11 +56,12 @@ class AStarPathingStrategy
         List<Point> path = new LinkedList<>();
         Point current = end;
         path.add(current);
-        while(current != start)
+        while(!current.equals(start))
         {
             path.add(cameFrom.get(current));
             current = cameFrom.get(current);
         }
+        path.remove(path.size() - 1);
         return path;
     }
 

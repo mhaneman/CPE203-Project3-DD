@@ -1,9 +1,11 @@
 import processing.core.PApplet;
+import processing.core.PFont;
 import processing.core.PImage;
 
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.Arrays;
 import java.util.Scanner;
 
 /*
@@ -55,6 +57,7 @@ public final class VirtualWorld extends PApplet
 
    private long next_time;
 
+   private int level = 1;
 
    public void settings()
    {
@@ -87,8 +90,29 @@ public final class VirtualWorld extends PApplet
          this.scheduler.updateOnTime(time);
          next_time = time + TIMER_ACTION_PERIOD;
       }
-
       view.drawViewport();
+      text("LEVEL " + level, 10, 20);
+      drawGameOver();
+      nextLevel();
+   }
+
+   private void drawGameOver()
+   {
+      if (world.getCharacter() == null)
+      {
+         level = 0;
+         text("GAME OVER", (VIEW_WIDTH / 2) - 40, VIEW_HEIGHT / 2);
+         text("PRESS R TO RESTART", (VIEW_WIDTH / 2) - 50, (VIEW_HEIGHT / 2) + 20);
+      }
+   }
+
+   private void nextLevel()
+   {
+      if (world.getEntities().stream().filter(i -> i instanceof EntityHostile).count() <= 0)
+      {
+         level++;
+         setup();
+      }
    }
 
    public void keyPressed()
@@ -107,14 +131,22 @@ public final class VirtualWorld extends PApplet
                break;
 
             case LEFT:
-               character.moveLeft(world);
+               character.moveLeft(imageStore);
                break;
 
             case RIGHT:
-               character.moveRight(world);
+               character.moveRight(imageStore);
                break;
             case KeyEvent.VK_SPACE:
                character.shoot(world, imageStore);
+         }
+      } else
+      {
+         switch (keyCode) {
+            case KeyEvent.VK_R:
+               System.out.println("restart");
+               setup();
+               break;
          }
       }
    }

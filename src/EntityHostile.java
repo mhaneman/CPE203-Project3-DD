@@ -4,8 +4,8 @@ import java.util.*;
 
 public abstract class EntityHostile extends EntityDynamic
 {
-    protected Stack<Point> path = new Stack<>();
-    protected PathingStrategy strategy;
+    private Stack<Point> path = new Stack<>();
+    private PathingStrategy strategy;
     public EntityHostile(String id, Point position, List<PImage> images,
                          int actionPeriod, int animationPeriod, PathingStrategy strategy)
     {
@@ -24,11 +24,10 @@ public abstract class EntityHostile extends EntityDynamic
         Optional<Entity> hostileTarget = world.findNearest(getPosition(), Character.class);
         long nextPeriod = getActionPeriod();
 
-        if (neighbors(this.getPosition(), hostileTarget.get().getPosition()))
-            System.out.println("end the game");
+        if (hostileTarget.isPresent() && neighbors(this.getPosition(), hostileTarget.get().getPosition()))
+            world.getCharacter().removeLifeTick();
 
-
-        Point tgtPos = hostileTarget.get().getPosition();
+        Point tgtPos = (!hostileTarget.isPresent()) ? this.getPosition() : hostileTarget.get().getPosition();
         world.moveEntity(this, nextPosition(tgtPos, world));
 
         eventScheduler.scheduleEvent(this,
@@ -40,16 +39,18 @@ public abstract class EntityHostile extends EntityDynamic
     {
         if (!world.withinBounds(this.getPosition()))
             return this.getPosition();
-        if (path.isEmpty() || world.isOccupied(path.peek()))
-            generatePath(this.getPosition(), destPos, world);
         if (path.isEmpty())
+            generatePath(this.getPosition(), destPos, world);
+        if (path.size() > 0 && !world.isOccupied(path.peek()))
+            return path.pop();
+        else
             return this.getPosition();
-        return path.pop();
     }
     protected boolean generatePath(Point pos, Point goal, WorldModel world)
     {
         List<Point> points;
-        points = strategy.computePath(pos, goal, p -> !world.isOccupied(p),
+        points = strategy.computePath(pos, goal,
+                p -> !world.isOccupied(p) && world.withinBounds(p),
                 EntityHostile::neighbors, PathingStrategy.CARDINAL_NEIGHBORS);
 
         if (points.size() == 0)

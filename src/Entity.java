@@ -23,6 +23,9 @@ public abstract class Entity
         this.images = images;
     }
 
+    public String getId() {
+        return id;
+    }
     protected void nextImage()
     {
         this.imageIndex = ((this.imageIndex + 1) % this.images.size());
