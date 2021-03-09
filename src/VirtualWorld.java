@@ -39,8 +39,6 @@ public final class VirtualWorld extends PApplet
    private static final String DEFAULT_IMAGE_NAME = "background_default";
    private static final int DEFAULT_IMAGE_COLOR = 0x808080;
 
-   private static final String LOAD_FILE_NAME = "world.sav";
-
    private static final String FAST_FLAG = "-fast";
    private static final String FASTER_FLAG = "-faster";
    private static final String FASTEST_FLAG = "-fastest";
@@ -75,7 +73,7 @@ public final class VirtualWorld extends PApplet
       this.scheduler = new EventScheduler(timeScale);
 
       loadImages(IMAGE_LIST_FILE_NAME, imageStore, this);
-      loadWorld(world, LOAD_FILE_NAME, imageStore);
+      loadWorld(world, "level" + level + ".sav", imageStore);
 
       scheduleActions(world, scheduler, imageStore);
 
@@ -100,7 +98,7 @@ public final class VirtualWorld extends PApplet
    {
       if (world.getCharacter() == null)
       {
-         level = 0;
+         level = 1;
          text("GAME OVER", (VIEW_WIDTH / 2) - 40, VIEW_HEIGHT / 2);
          text("PRESS R TO RESTART", (VIEW_WIDTH / 2) - 50, (VIEW_HEIGHT / 2) + 20);
       }

@@ -5,8 +5,7 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 
-class GreedyPathingStrategy
-        implements PathingStrategy
+public class GreedyPathingStrategy implements PathingStrategy
 {
     public List<Point> computePath(Point start, Point end,
                                    Predicate<Point> canPassThrough,
@@ -14,13 +13,10 @@ class GreedyPathingStrategy
                                    Function<Point, Stream<Point>> potentialNeighbors)
     {
         Dictionary<Point, Point> cameFrom = new Hashtable<>();
-        Dictionary<Point, Integer> gScore = new Hashtable<>();
-        Dictionary<Point, Integer> fScore = new Hashtable<>();
-        PriorityQueue<Point> openSet = new PriorityQueue<>(Comparator.comparingInt(fScore::get));
+        Dictionary<Point, Integer> hScore = new Hashtable<>();
+        PriorityQueue<Point> openSet = new PriorityQueue<>(Comparator.comparingInt(hScore::get));
 
         openSet.add(start);
-        gScore.put(start, 0);
-        fScore.put(start, heuristic(start, end));
 
         while (openSet.size() > 0)
         {
@@ -28,33 +24,33 @@ class GreedyPathingStrategy
             if (withinReach.test(current, end))
                 return reconstructPath(cameFrom, start, current);
 
+
             potentialNeighbors
                     .apply(current)
                     .filter(canPassThrough)
                     .forEach(i ->
                             {
-                                int tenative_gScore = gScore.get(current) + 1;
-                                int neighbor_gScore = (gScore.get(i) == null) ? 0 : gScore.get(i);
-                                if (tenative_gScore < neighbor_gScore || gScore.get(i) == null)
+                                int cHScore = heuristic(i, end);
+                                if (hScore.get(i) == null)
                                 {
                                     cameFrom.put(i, current);
-                                    gScore.put(i, tenative_gScore);
-                                    fScore.put(i, tenative_gScore + heuristic(i, end));
+                                    hScore.put(i, cHScore);
                                     if (!openSet.contains(i))
                                         openSet.add(i);
                                 }
                             }
                     );
         }
+
         return new LinkedList<>();
     }
 
     public List<Point> reconstructPath(Dictionary<Point, Point> cameFrom, Point start, Point end)
     {
-        List<Point> path = new LinkedList<>();
+        List<Point> path = new Stack<>();
         Point current = end;
         path.add(current);
-        while(!current.equals(start))
+        while(current != start)
         {
             path.add(cameFrom.get(current));
             current = cameFrom.get(current);
@@ -68,3 +64,4 @@ class GreedyPathingStrategy
         return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
     }
 }
+

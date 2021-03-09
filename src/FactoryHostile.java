@@ -4,10 +4,10 @@ public class FactoryHostile
     private static int dragonActionPeriod = 1000;
 
     private static int blobAnimationPeriod = 4000;
-    private static int blobActionPeriod = 2000;
+    private static int blobActionPeriod = 1250;
 
     private static int moleAnimationPeriod = 1000;
-    private static int moleActionPeriod = 1100;
+    private static int moleActionPeriod = 600;
 
     public static EntityHostile createDragon(Point position, ImageStore imageStore)
     {

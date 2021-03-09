@@ -133,12 +133,6 @@ public class Character extends EntityDynamic
         this.livesTick -= 2;
     }
 
-    public void restoreLifeTick()
-    {
-        if (this.livesTick < livesTime)
-            livesTick = livesTime;
-    }
-
     public void moveUp()
     {
         direction = 1;

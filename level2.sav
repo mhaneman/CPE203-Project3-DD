@@ -1,0 +1,24 @@
+character 10 4
+dragon 7 7
+dragon 12 17
+dragon 11 14
+blob 3 3
+blob 6 15
+blob 13 6
+background
+dirt
+empty 7 8
+empty 7 9
+empty 8 9
+empty 9 9
+empty 10 9
+empty 11 9
+empty 12 9
+empty 13 9
+empty 13 8
+empty 13 7
+empty 6 14
+empty 6 16
+empty 6 17
+empty 6 18
+empty 6 19

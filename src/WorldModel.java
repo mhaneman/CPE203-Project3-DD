@@ -9,30 +9,22 @@ in terms of entities and background elements
 
 final class WorldModel
 {
-   private static final String DRAGON_KEY = "dragon";
    private static final int DRAGON_NUM_PROPERTIES = 3;
    private static final int DRAGON_COL = 1;
    private static final int DRAGON_ROW = 2;
 
-   private static final String BLOB_KEY = "blob";
    private static final int BLOB_NUM_PROPERTIES = 3;
    private static final int BLOB_COL = 1;
    private static final int BLOB_ROW = 2;
 
-   private static final String MOLE_KEY = "mole";
    private static final int MOLE_NUM_PROPERTIES = 3;
    private static final int MOLE_COL = 1;
    private static final int MOLE_ROW = 2;
 
-   private static final String CHARACTER_KEY = "character";
    private static final int CHARACTER_NUM_PROPERTIES = 3;
    private static final int CHARACTER_COL = 1;
    private static final int CHARACTER_ROW = 2;
 
-   private static final String OBSTACLE_KEY = "obstacle";
-   private static final int OBSTACLE_NUM_PROPERTIES = 3;
-   private static final int OBSTACLE_COL = 1;
-   private static final int OBSTACLE_ROW = 2;
    private static final int PROPERTY_KEY = 0;
 
 
@@ -70,6 +62,7 @@ final class WorldModel
 
    public boolean processLine(String line, ImageStore imageStore)
    {
+
       String[] properties = line.split("\\s");
       if (properties.length > 0)
       {
@@ -79,33 +72,19 @@ final class WorldModel
                return parseBackground(imageStore);
             case "dirt":
                return parseDirt(imageStore);
-            case OBSTACLE_KEY:
-               return parseObstacle(properties, imageStore);
-            case DRAGON_KEY:
+            case "dragon":
                return parseDragon(properties, imageStore);
-            case BLOB_KEY:
+            case "blob":
                return parseBlob(properties, imageStore);
-            case MOLE_KEY:
+            case "mole":
                return parseMole(properties, imageStore);
-            case CHARACTER_KEY:
+            case "character":
                return parseCharacter(properties, imageStore);
+            case "empty":
+               return parseEmpty(properties);
          }
       }
       return false;
-   }
-
-   private boolean parseObstacle(String[] properties, ImageStore imageStore)
-   {
-      if (properties.length == OBSTACLE_NUM_PROPERTIES)
-      {
-         Point pt = new Point(
-            Integer.parseInt(properties[OBSTACLE_COL]),
-            Integer.parseInt(properties[OBSTACLE_ROW]));
-
-         Entity entity = FactoryObstacle.createObstacle(pt, imageStore.getImageList(OBSTACLE_KEY));
-         tryAddEntity(entity);
-      }
-      return properties.length == OBSTACLE_NUM_PROPERTIES;
    }
 
    private boolean parseDragon(String[] properties, ImageStore imageStore)
@@ -186,7 +165,7 @@ final class WorldModel
             Point newPos = new Point(i, j);
             if (!isOccupied(newPos))
             {
-               Entity entity = FactoryObstacle.createObstacle(newPos, imageStore.getImageList("dirt"));
+               Entity entity = FactoryObstacle.createObstacle(newPos, imageStore);
                tryAddEntity(entity);
             }
 
@@ -194,6 +173,17 @@ final class WorldModel
 
       }
       return true;
+   }
+
+   private boolean parseEmpty(String[] properties)
+   {
+      if (properties.length == CHARACTER_NUM_PROPERTIES)
+      {
+         removeEntityAt(new Point(Integer.parseInt(properties[CHARACTER_COL]),
+                 Integer.parseInt(properties[CHARACTER_ROW])));
+         return true;
+      }
+      return false;
    }
 
    public Character getCharacter()
@@ -204,11 +194,6 @@ final class WorldModel
             return (Character) e;
       }
       return null;
-   }
-
-   public void setEntityTexture(Entity entity, ImageStore imageStore, String imageKey)
-   {
-      entity.setImages(imageStore.getImageList(imageKey));
    }
 
    public boolean withinBounds(Point pos)
@@ -296,7 +281,7 @@ final class WorldModel
       this.background[pos.y][pos.x] = background;
    }
 
-   private void tryAddEntity(Entity entity)
+   public void tryAddEntity(Entity entity)
    {
       if (this.isOccupied(entity.getPosition()))
       {
